@@ -1,24 +1,27 @@
-import React from 'react'
+import React,{Suspense} from 'react'
 import '../index.css'
 import { Route, BrowserRouter as Router, Switch, Redirect, HashRouter } from 'react-router-dom';
 import requireAuth from '../components/auth.guard';
-import Auth from './layouts/auth.layout';
-import Main from './layouts/main.layout';
-import LoginComponent from '../pages/auth/login.page';
-import Home from '../pages/index.page';
-import ComponentNotFound from '../pages/misc/not-found.page';
-import Appoinments from '../pages/doctor/appointments.page';
-import Patients from '../pages/doctor/patients.page';
-import Scheduler from '../pages/doctor/schedule.page';
-import Profile from '../pages/doctor/profile.page';
-import ChangePassword from '../pages/doctor/changepass.page';
-import RegisterComponent from '../pages/auth/register.page';
-import AccountCreated from '../pages/misc/accountcreated.page';
+import LoaderComponent from '../components/general/loader.component';
+const Auth = React.lazy(()=> import('./layouts/auth.layout'));
+const Main = React.lazy(()=> import('./layouts/main.layout'));
+const LoginComponent = React.lazy(()=> import( '../pages/auth/login.page'));
+const Home = React.lazy(()=> import( '../pages/index.page'));
+const ComponentNotFound=  React.lazy(()=> import( '../pages/misc/not-found.page'));
+const Appoinments = React.lazy(()=> import( '../pages/doctor/appointments.page'));
+const Patients = React.lazy(()=> import( '../pages/doctor/patients.page'));
+const Scheduler = React.lazy(()=> import( '../pages/doctor/schedule.page'));
+const Profile = React.lazy(()=> import( '../pages/doctor/profile.page'));
+const ChangePassword = React.lazy(()=> import( '../pages/doctor/changepass.page'));
+const RegisterComponent = React.lazy(()=> import( '../pages/auth/register.page'));
+const AccountCreated = React.lazy(()=> import( '../pages/misc/accountcreated.page'));
 export default class
     routing extends React.Component {
 
     render() {
         return (
+            <div>
+                <Suspense fallback={<LoaderComponent/>}>
             <HashRouter>
                 <Switch>
                     <Route path='/created' exact component={AccountCreated} />
@@ -50,7 +53,8 @@ export default class
 
                 </Switch>
             </HashRouter>
-
+                </Suspense>
+                </div>
         )
     }
 }

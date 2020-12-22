@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import swal from 'sweetalert';
-import { postFormDataRequest as fdReqPost, postRequest } from './../../helper/requests';
+import { getRequest, postFormDataRequest as fdReqPost, postRequest } from './../../helper/requests';
 import { langs as lang } from './../../helper/langs.json';
 import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber, formatPhoneNumberIntl } from 'react-phone-number-input'
 import {
     geocodeByAddress,
-    geocodeByPlaceId,
     getLatLng,
 } from 'react-places-autocomplete';
 import PlacesAutocomplete from 'react-places-autocomplete';
@@ -14,7 +13,7 @@ import AjaxLoaderIndicator from '../general/loader.component';
 export default class RegisterForm extends Component {
     constructor(props) {
         super(props);
-        this.state = {show:false, selectedFile: "", alllang: [], pending: false, userexists: false, query: "", file: null, firstName: "", lastName: "", address: "", lat: 0.0000, long: 0.00, username: "", password: "", code: "", number: "", email: "", lanuage: "en", phone: "" }
+        this.state = {show:false, selectedFile: "", alllang: [], pending: false, userexists: false, query: "", file: null, firstName: "", lastName: "", address: "", lat: 0.0000, long: 0.00, username: "", password: "", code: "", number: "", email: "", lanuage: "en", phone: "",specialty:0,specialties:[] }
         this.autoComplete = null;
         this.setState({ alllang: lang });
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -26,7 +25,18 @@ export default class RegisterForm extends Component {
     componentDidMount() {
 
         this.loadScript("/assets/js/script.js", () => { });
-        console.log(this.props.history);
+      this.handleGetAllSpecialties();
+    }
+    handleGetAllSpecialties(){
+        this.setState({show:false});
+        getRequest('doctor/get-specialities',false).then(x=>{
+            this.setState({show:false});
+            if(x.status===200){
+            this.setState({specialties:x.data});
+            }
+        }).catch(e=>{
+            console.error(e);
+        });
     }
     async handlePlaceSelect(updateQuery) {
         const addressObject = this.autoComplete.getPlace();
@@ -73,6 +83,8 @@ export default class RegisterForm extends Component {
         formData.append("password", this.state.password);
         formData.append("file", this.state.file);
         formData.append("email", this.state.email);
+        formData.append("language", this.state.lanuage);
+        formData.append("specialty", this.state.specialty);
         this.setState({show:true});
         const result = await fdReqPost('/doctor/create', formData, false);
         if (result.status === 200) {
@@ -126,6 +138,9 @@ export default class RegisterForm extends Component {
 
     handleEmailChange = (e) => {
         this.setState({ email: e.target.value });
+    }
+    handleSpecialtyChange = (e) => {
+        this.setState({ specialty: e.target.value });
     }
  
     toBase64123(file) {
@@ -251,16 +266,29 @@ export default class RegisterForm extends Component {
                 <label className="focus-label">Address</label>
             </div>
             <div className="row">
-                <div className="col-md-8">
+                <div className="col-md-6">
                     <div className="form-group form-focus">
                         <input type="file" className="form-control floating" placeholder="Select profile image" onChange={this.handleFileChange} required style={{ padding: "10px", overflow: "hidden" }} accept="image/*" />
                         {/* <label className="focus-label">Image profile</label> */}
                     </div>
 
                 </div>
-                <div className="col-md-4">
-                    <img src={this.state.selectedFile} style={{ width: "100%", height: "50px" }} />
+                <div className="col-md-6">
+                    <div className="form-group form-focus">
+                        {/* <input type="text" className="form-control floating" value={this.state.address} onChange={this.handleAddressChange} required /> */}
+                        <select className="form-control floating"  value={this.state.specialty} onChange={this.handleSpecialtyChange}  required>
+                            {
+                                this.state.specialties.map((e, i) => {
+                                    return (<option key={i} value={e.id}>{e.displayname}</option>)
+                                })
+                            }
+                        </select>
+                        <label className="focus-label">Specialty</label>
+                    </div>
                 </div>
+                {/* <div className="col-md-4">
+                    <img src={this.state.selectedFile} style={{ width: "100%", height: "50px" }} alt="0" />
+                </div> */}
             </div>
 
             <div className="form-group form-focus">

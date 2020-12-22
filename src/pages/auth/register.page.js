@@ -1,9 +1,5 @@
-import {prod} from './../../config/index.json';
-import swal from 'sweetalert';
-import cookie from 'js-cookie';
 import React from 'react';
 import RegisterForm from '../../components/auth/register.form';
-import AjaxLoaderIndicator from '../../components/general/loader.component';
 export default class RegisterComponent extends React.Component {
     constructor(props) {
         super(props);
